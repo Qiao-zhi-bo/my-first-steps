@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>产线状态看板</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f0f0f0; padding-top: 50px; }
+        h1 { color: #333; }
+        .box { background: white; border: 1px solid #ccc; padding: 20px; display: inline-block; margin: 10px; }
+        .good { color: green; }
+        .bad { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🏭 产线 A · 实时状态看板</h1>
+    <div class="box">当前工序：<span id="status">IDLE</span></div>
+    <div class="box">主轴电机(DO)：<span id="motor">停止</span></div>
+    <div class="box">检测结果(AI)：<span id="ai" class="good">✅ 未检测</span></div>
+    <div class="box">时间戳(ms)：<span id="time">0</span></div>
+
+    <script>
+        setInterval(() => {
+            fetch('/data')
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('status').innerText = d.status || 'IDLE';
+                    document.getElementById('motor').innerText = d.motor ? '启动' : '停止';
+                    document.getElementById('ai').innerText = d.ai ? '✅ 良品' : '⚠️ 不良品';
+                    document.getElementById('ai').className = d.ai ? 'good' : 'bad';
+                    document.getElementById('time').innerText = d.timestamp || 0;
+                })
+                .catch(() => {}); // 忽略错误
+        }, 100); // 每 100ms 刷新一次
+    </script>
+</body>
+</html>
